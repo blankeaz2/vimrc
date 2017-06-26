@@ -7,14 +7,28 @@ set number
 colo elflord
 set hlsearch
 set ruler
+set foldmethod=syntax
 
 set tabstop=8 softtabstop=0 expandtab shiftwidth=2 smarttab
 "auto changes working dir, may have bad effect on plugins
 "http://vim.wikia.com/wiki/Set_working_directory_to_the_current_file
 autocmd BufEnter * silent! lcd %:p:h
 
+"Colorscheme Settings
+let g:airline_theme='one'
+colorscheme one
+set background=dark " for the dark version
+" set background=light " for the light version
+
 " fzf installed using Homebrew
 set rtp+=/usr/local/opt/fzf
+
+"netrw Settings
+"let g:netrw_banner = 0
+"let g:netrw_liststyle = 3
+"let g:netrw_browse_split = 4
+"let g:netrw_altv = 1
+"let g:netrw_winsize = 25
 
 "Tern Settings
 "enable keyboard shortcuts
@@ -22,6 +36,21 @@ let g:tern_map_keys=1
 "show argument hints
 let g:tern_show_argument_hints='on_hold'
 
+"Javascript Settings
+let g:javascript_plugin_jsdoc = 1
+let g:javascript_plugin_ngdoc = 1
+let g:javascript_plugin_flow = 1
+
+"Syntastic Settings
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+let g:syntastic_javascript_checkers=['eslint']
 
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -56,8 +85,11 @@ Plugin 'pangloss/vim-javascript'
 Plugin 'moll/vim-node'
 Plugin 'elzr/vim-json'
 Plugin 'junegunn/fzf.vim'
+Plugin 'dbakker/vim-projectroot'
 Plugin 'ternjs/tern_for_vim'
 Plugin 'skywind3000/asyncrun.vim'
+Plugin 'vim-syntastic/syntastic'
+Plugin 'rakr/vim-one'
 " plugin from http://vim-scripts.org/vim/scripts.html
 Plugin 'L9'
 " Git plugin not hosted on GitHub
@@ -90,6 +122,21 @@ augroup vimrc
     autocmd QuickFixCmdPost * botright copen 8
 augroup END
 
+" Grep settings
+set grepprg=grep\ -n\ $*
+
+" --column: Show column number
+" --line-number: Show line number
+" --no-heading: Do not show file headings in results
+" --fixed-strings: Search term as a literal string
+" --ignore-case: Case insensitive search
+" --no-ignore: Do not respect .gitignore, etc...
+" --hidden: Search hidden files and folders
+" --follow: Follow symlinks
+" --glob: Additional conditions for search (in this case ignore everything in the .git/ folder)
+" --color: Search color options
+command! -bang -nargs=* Find call fzf#vim#grep('rg --column --line-number --no-heading --fixed-strings --ignore-case --no-ignore --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>), 1, <bang>0)
+
 "Misc bindings
 nnoremap <C-t> :tabnew<CR>
 nnoremap , $p
@@ -111,16 +158,54 @@ nnoremap <c-l> <c-w>l
 noremap √ :vsp $MYVIMRC<CR>
 
 "File search actions 'Option-f'
-noremap ƒg :GFiles?<CR>
-noremap ƒf :Files<CR>
-noremap ƒt :Files 
+"find in Git file names
+nnoremap ƒg :GFiles?<CR>
+"find in filepath [root = current]
+nnoremap ƒf :Files<CR>
+"find in grep results [input grep search]
+nnoremap ƒi :execute "Find " . expand("<cword>")<CR>
+vnoremap ƒi y:Find <C-R>"<CR>
+"find in buffer names
+nnoremap ƒb :Buffers<CR>
+"find in buffer lines
+nnoremap ƒl :Lines<CR>
+"find in tags
+nnoremap ƒt :execute "Tags " . expand("<cword>")<CR>
+
+"Buffer actions 'Option-b'
+nnoremap ∫p :bprevious<CR>
+nnoremap ∫n :bnext<CR>
+"delete buffer
+nnoremap ∫d :bd<CR>
 
 "Docker actions 'Option-d'
-noremap ∂t :!docker
-noremap ∂u :AsyncRun docker-compose up -d<CR>
-noremap ∂d :AsyncRun docker-compose down<CR>
-noremap ∂l :!docker-compose logs<CR>
-noremap ∂p :!docker ps -a<CR>
+"docker command [input rest]
+nnoremap ∂c :!docker 
+"docker up with current project
+nnoremap ∂u :AsyncRun docker-compose up -d<CR>
+"docker down with current project
+nnoremap ∂d :AsyncRun docker-compose down<CR>
+"docker logs with current project
+nnoremap ∂l :!docker-compose logs<CR>
+"docker ps
+nnoremap ∂p :!docker ps -a<CR>
 
-"Tern actions 'Option-t'
-noremap †r :TernRefs<CR>
+"Directory actions 'Option-d' + i
+"move up one directory
+noremap ∂ik :cd ..<CR> \| :pwd<CR>
+"move to predicted root directory
+noremap ∂ir :ProjectRootCD<CR> \| :pwd<CR>
+"move to current file directory
+noremap ∂ic :cd %:p:h<CR> \| :pwd<CR>
+
+"Tern actions 'Option-t' + e
+"look for refs to current object
+nnoremap †er :TernRefs<CR>
+
+"Tags actions 'Option-t' + a
+"noremap †ag :AsyncRun find . -type f -iregex ".*\.js$" -exec jsctags {} -f \; \| sed '/^$/d' \| sort > tags<CR>
+nnoremap †af :tag<CR>
+
+"Async actions 'Option-a'
+noremap åk :AsyncStop<CR>
+noremap å :AsyncStop!<CR>
