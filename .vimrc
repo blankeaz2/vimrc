@@ -4,7 +4,7 @@ set nocompatible              " be iMproved, required
 filetype off                  " required
 set shellcmdflag=-c           " non-interactive shell
 set number
-colo elflord
+"colo elflord
 set hlsearch
 set ruler
 set foldmethod=syntax
@@ -13,12 +13,6 @@ set tabstop=8 softtabstop=0 expandtab shiftwidth=2 smarttab
 "auto changes working dir, may have bad effect on plugins
 "http://vim.wikia.com/wiki/Set_working_directory_to_the_current_file
 autocmd BufEnter * silent! lcd %:p:h
-
-"Colorscheme Settings
-let g:airline_theme='one'
-colorscheme one
-set background=dark " for the dark version
-" set background=light " for the light version
 
 " fzf installed using Homebrew
 set rtp+=/usr/local/opt/fzf
@@ -90,6 +84,7 @@ Plugin 'ternjs/tern_for_vim'
 Plugin 'skywind3000/asyncrun.vim'
 Plugin 'vim-syntastic/syntastic'
 Plugin 'rakr/vim-one'
+Plugin 'hashivim/vim-consul'
 " plugin from http://vim-scripts.org/vim/scripts.html
 Plugin 'L9'
 " Git plugin not hosted on GitHub
@@ -121,6 +116,12 @@ filetype plugin indent on    " required
 augroup vimrc
     autocmd QuickFixCmdPost * botright copen 8
 augroup END
+
+"Colorscheme Settings
+let g:airline_theme='one'
+colorscheme one
+set background=dark " for the dark version
+" set background=light " for the light version
 
 " Grep settings
 set grepprg=grep\ -n\ $*
@@ -155,16 +156,17 @@ nnoremap <c-h> <c-w>h
 nnoremap <c-l> <c-w>l
 
 "vimrc actions 'Option-v'
-noremap √ :vsp $MYVIMRC<CR>
+noremap √e :vsp $MYVIMRC<CR>
+noremap √s :so $MYVIMRC<CR>
 
 "File search actions 'Option-f'
 "find in Git file names
 nnoremap ƒg :GFiles?<CR>
 "find in filepath [root = current]
-nnoremap ƒf :Files<CR>
+nnoremap ƒf :ProjectRootCD<CR> \| :Files<CR>
 "find in grep results [input grep search]
-nnoremap ƒi :execute "Find " . expand("<cword>")<CR>
-vnoremap ƒi y:Find <C-R>"<CR>
+nnoremap ƒi :ProjectRootCD<CR> \| :execute "Find " . expand("<cword>")<CR>
+vnoremap ƒi y:ProjectRootCD<CR> \| :Find <C-R>"<CR>
 "find in buffer names
 nnoremap ƒb :Buffers<CR>
 "find in buffer lines
@@ -209,3 +211,6 @@ nnoremap †af :tag<CR>
 "Async actions 'Option-a'
 noremap åk :AsyncStop<CR>
 noremap å :AsyncStop!<CR>
+
+"netrw actions 'Option-e'
+nnoremap ´x :Ex <CR>
